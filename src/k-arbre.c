@@ -15,7 +15,7 @@ karbre kConsArbre(int k, element racine, ...){
   karbre ka = safe_alloc(sizeof(struct karbre));
 
   ka->k = k;
-  ka->fils = safe_alloc(sizeof (element));
+  ka->fils = safe_alloc(sizeof(element) * k);
 
   ka->racine = racine;
 
@@ -38,7 +38,7 @@ karbre kFils(int ieme, karbre A){
 }
 
 element kRacine(karbre A){
-  if (kEstVide(A)) { return ELEM_ERR; }
+  if (kEstVide(A)) { return NULL; }
   return A->racine;
 }
 
@@ -55,7 +55,7 @@ void kAfficherRec(karbre A, int prof){
   
   for (int i = 0; i < prof; i++){ printf("  "); }
   
-  printf("> Racine: %d (prof. = %d)\n", A->racine, prof);
+  printf("> Racine: %p (prof. = %d)\n", A->racine, prof);
 
   for (int i = 0; i < A->k; i++){ kAfficherRec(A->fils[i], prof + 1); }
   

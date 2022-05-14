@@ -13,7 +13,7 @@ model model_init(int parts){
 void model_free(model m){
   if (m == NULL){ return; }
 
-  array_free(m->parts);
+  array_free(1, m->parts);
   safe_free(m);
 }
 
@@ -39,4 +39,33 @@ model model_copy(model src){
   cpy->parts = array_copy(mesh_copy, src->parts);
 
   return cpy;
+}
+
+mod_inst inst_init(model mod){
+  mod_inst inst = safe_alloc(sizeof(struct mod_inst_s));
+  inst->mod = mod;
+  trans_id(inst->mat);
+
+  return inst;
+}
+
+void inst_free(mod_inst inst){
+  if(inst == NULL){ return; }
+
+  safe_free(inst);
+}
+
+partial partial_init(mod_inst inst){
+  partial part = safe_alloc(sizeof(struct partial_s));
+  part->parent = inst;
+  part->mask = set_init(array_size(inst->mod->parts));
+
+  return part;
+}
+
+void partial_free(partial part){
+  if(part == NULL){ return; }
+
+  set_free(part->mask);
+  safe_free(part);
 }

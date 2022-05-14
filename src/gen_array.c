@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "../inc/gen_array.h"
 #include "../inc/alloc.h"
 
@@ -5,7 +7,7 @@
 array array_init(int capacity){
   array arr = safe_alloc(sizeof(struct array_s));
 
-  arr->arr = safe_alloc(sizeof(void *) * capacity);
+  arr->arr = safe_alloc(sizeof(elem) * capacity);
   arr->capacity = capacity;
   arr->size = 0;
 
@@ -13,11 +15,13 @@ array array_init(int capacity){
 }
 
 // Libère l'espace occupé par le tableau
-void array_free(array arr){
+void array_free(int free_content, array arr){
   if (arr == NULL){ return; }
 
-  for (int i = 0; i < arr->size; i++){
-    safe_free(arr->arr[i]);
+  if (free_content){ 
+    for (int i = 0; i < arr->size; i++){
+      safe_free(arr->arr[i]);
+    }
   }
   
   safe_free(arr->arr);
@@ -31,8 +35,17 @@ void check_capacity(array arr){
 
   if (arr->capacity == arr->size){
     arr->capacity *= 2;
-    arr->arr = safe_realloc(arr->arr, sizeof(void *) * arr->capacity);
+    arr->arr = safe_realloc(arr->arr, sizeof(elem) * arr->capacity);
   }
+}
+
+// Fonction privée
+// Vérifie et ajuste l'espace disponible du tableau
+void check_capacity_inc(int inc, array arr){
+  if (arr == NULL || inc <= 0){ return; }
+
+  while (arr->capacity < arr->size + inc){ arr->capacity *= 2; }
+  arr->arr = safe_realloc(arr->arr, sizeof(elem) * arr->capacity);
 }
 
 // Ajoute un element au tableau
@@ -45,11 +58,26 @@ void array_add(elem e, array arr){
   arr->size++;
 }
 
+void array_fill(int fill, array arr){
+  if (arr == NULL || fill <= 0){ return; }
+
+  check_capacity_inc(fill, arr);
+
+  memset(&arr->arr[arr->size], 0, sizeof(elem) * fill);
+  arr->size += fill;
+}
+
 // Renvoie un element du tableau
 void *array_get(int i, array arr){
   if (arr == NULL || i < 0 || i >= arr->size) { return NULL; }
 
   return arr->arr[i];
+}
+
+void array_set(int i, elem e, array arr){
+  if (arr == NULL || i < 0 || i >= arr->size) { return; }
+
+  arr->arr[i] = e;
 }
 
 // Renvoie le nombre d'elements

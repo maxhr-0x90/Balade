@@ -62,7 +62,8 @@ void affichage(){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  test_triangle_AABB_intersection();
+  //test_triangle_AABB_intersection();
+  test_octree();
 
   glFlush();
 }
@@ -291,6 +292,8 @@ int main(int argc, char *argv[]){
   right_g = 0;
   downward_g = 0;
   upward_g = 0;
+
+  init_test_octree();
 
   int opt;
   while((opt = getopt(argc, argv, "h")) != -1) { 

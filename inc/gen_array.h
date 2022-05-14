@@ -15,13 +15,17 @@ struct array_s{
 array array_init(int capacity);
 
 // libère l'espace occupé par le tableau
-void array_free(array arr);
+void array_free(int free_content, array arr);
 
 // ajoute un element au tableau
 void array_add(elem e, array arr);
 
+void array_fill(int fill, array arr);
+
 // renvoie un element du tableau
 void *array_get(int i, array arr);
+
+void array_set(int i, elem e, array arr);
 
 // Renvoie le nombre d'elements
 int array_size(array arr);

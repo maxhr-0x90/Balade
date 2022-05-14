@@ -301,12 +301,10 @@ int main(int argc, char *argv[]){
   mod_g = plane(100, 100, 10, 10);
   mod2_g = load_model("models/pine.swag");
 
-  inst_g.mod = mod_g;
-  trans_id(inst_g.mat);
-  trans_rotate(M_PI_4, 0, 0, 1, inst_g.mat);
+  inst_g = inst_init(mod_g);
+  trans_rotate(M_PI_4, 0, 0, 1, inst_g->mat);
 
-  inst2_g.mod = mod2_g;
-  trans_id(inst2_g.mat);
+  inst2_g = inst_init(mod2_g);
 
   fenetre(argc, argv);
 

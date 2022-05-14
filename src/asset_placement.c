@@ -4,12 +4,12 @@
 #include "../inc/asset_placement.h"
 
 void place_model(mod_inst mod){
-  if (mod.mod == NULL) { return; }
+  if (mod->mod == NULL) { return; }
 
   glPushMatrix();
-  glLoadMatrixf(mod.mat);
-  for (int i = 0; i < array_size(mod.mod->parts); i++){
-    mesh me = (mesh)array_get(i, mod.mod->parts);
+  glLoadMatrixf(mod->mat);
+  for (int i = 0; i < array_size(mod->mod->parts); i++){
+    mesh me = (mesh)array_get(i, mod->mod->parts);
 
     glBegin(GL_TRIANGLES);
 
@@ -28,6 +28,27 @@ void place_model(mod_inst mod){
     }
 
     glEnd();
+  }
+  glPopMatrix();
+}
+
+void place_wire_model(mod_inst mod){
+  if (mod->mod == NULL) { return; }
+
+  glPushMatrix();
+  glLoadMatrixf(mod->mat);
+  for (int i = 0; i < array_size(mod->mod->parts); i++){
+    mesh me = (mesh)array_get(i, mod->mod->parts);
+
+    for (int j = 0; j < array_size(me->faces); j++){
+      glBegin(GL_LINE_LOOP);
+      face f = (face)array_get(j, me->faces);
+      glVertex3fv(((GLfloat *)array_get(f->vertices[0], me->vertices)));
+      glVertex3fv(((GLfloat *)array_get(f->vertices[1], me->vertices)));
+      glVertex3fv(((GLfloat *)array_get(f->vertices[2], me->vertices)));
+      glEnd();
+    }
+
   }
   glPopMatrix();
 }

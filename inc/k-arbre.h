@@ -1,13 +1,7 @@
 #ifndef KARBRE_H_
 #define KARBRE_H_
 
-#define VIDE 0
-#define PLEIN 1
-#define SOMMET -1
-
-typedef int element;
-
-#define ELEM_ERR -1
+typedef void *element;
 
 typedef struct karbre *karbre;
 struct karbre{

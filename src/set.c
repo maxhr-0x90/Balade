@@ -1,13 +1,17 @@
 #include "../inc/set.h"
 #include "../inc/alloc.h"
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 
-set set_init(int size){
+set set_init(int cap){
   set s = safe_alloc(sizeof (struct set_s));
   
-  size = (size / sizeof(int)) * sizeof(int);
+  int size = (int) ceil((float)cap / CELL_VOL);
 
-  s->set = safe_alloc(size);
-  s->cap = size;
+  s->set = safe_alloc(size * sizeof(int));
+  memset(s->set, 0, size * sizeof(int));
+  s->cap = size * CELL_VOL;
 
   return s;
 }
@@ -22,26 +26,26 @@ void set_free(set s){
 void set_add(int i, set s){
   if (s == NULL || i < 0 || i >= s->cap){ return; }
 
-  s->set[i / sizeof(int)] |= 1 << (i % sizeof(int));
+  s->set[i / CELL_VOL] |= 1 << (i % CELL_VOL);
 }
 
 void set_rem(int i, set s){
   if (s == NULL || i < 0 || i >= s->cap){ return; }
 
-  s->set[i / sizeof(int)] &= ~(1 << (i % sizeof(int)));
+  s->set[i / CELL_VOL] &= ~(1 << (i % CELL_VOL));
 }
 
 int set_has(int i, set s){
   if (s == NULL || i < 0 || i >= s->cap){ return 0; }
 
-  return ((s->set[i / sizeof(int)] & ~(1 << (i % sizeof(int)))) != 0);
+  return ((s->set[i / CELL_VOL] & ~(1 << (i % CELL_VOL))) != 0);
 }
 
 int set_is_empty(set s){
   if (s == NULL){ return 1; }
 
   int or = 0;
-  for (int i = 0; i < (s->cap / sizeof(int)); i++){ or |= s->set[i]; }
+  for (int i = 0; i < (s->cap / CELL_VOL); i++){ or |= s->set[i]; }
   
   return (or == 0);
 }
@@ -71,7 +75,7 @@ int set_size(set s){
   if (s == NULL){ return -1; }
 
   int size = 0;
-  for (int i = 0; i < (s->cap / sizeof(int)); i++){ 
+  for (int i = 0; i < (s->cap / CELL_VOL); i++){ 
     size += hamming_weight(s->set[i]); 
   }
   
@@ -81,7 +85,7 @@ int set_size(set s){
 void set_union(set a, set b, set out){
   if (a == NULL || b == NULL || out == NULL || a->cap != b->cap || b->cap != out->cap){ return; }
 
-  for (int i = 0; i < (a->cap / sizeof(int)); i++){ 
+  for (int i = 0; i < (a->cap / CELL_VOL); i++){ 
     out->set[i] = a->set[i] | b->set[i]; 
   }
 }
@@ -89,7 +93,7 @@ void set_union(set a, set b, set out){
 void set_inter(set a, set b, set out){
   if (a == NULL || b == NULL || out == NULL || a->cap != b->cap || b->cap != out->cap){ return; }
 
-  for (int i = 0; i < (a->cap / sizeof(int)); i++){ 
+  for (int i = 0; i < (a->cap / CELL_VOL); i++){ 
     out->set[i] = a->set[i] & b->set[i]; 
   }
 }

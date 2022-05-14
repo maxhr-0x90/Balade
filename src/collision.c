@@ -1,6 +1,7 @@
 #include "../inc/collision.h"
 
 #include <math.h>
+#include <stdio.h>
 
 float min2 (float f1, float f2);
 float max2 (float f1, float f2);

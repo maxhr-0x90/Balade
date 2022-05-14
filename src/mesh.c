@@ -17,10 +17,10 @@ mesh mesh_init(material mat, int nb_face, int nb_vert, int nb_norm, int nb_uvc){
 void mesh_free(mesh m){
   if (m == NULL){ return; }
 
-  array_free(m->faces);
-  array_free(m->normals);
-  array_free(m->vertices);
-  array_free(m->uvcoords);
+  array_free(1, m->faces);
+  array_free(1, m->normals);
+  array_free(1, m->vertices);
+  array_free(1, m->uvcoords);
   safe_free(m);
 }
 
