@@ -2,6 +2,7 @@
 #define PLAYER_H_
 
 #include "vector.h"
+#include "light.h"
 
 typedef struct player_s *player;
 struct player_s{
@@ -21,5 +22,7 @@ void player_set_speed(float x, float y, player p);
 void player_set_cam(float phi, float theta, player p);
 
 void step(float delta, player p);
+
+void setup_torch(light *torch, player p);
 
 #endif

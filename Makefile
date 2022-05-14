@@ -4,9 +4,11 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
-EXE := $(BIN_DIR)/le_futur
+MAIN := $(BIN_DIR)/fraude
+PLAY := $(BIN_DIR)/playground
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
 
 CPPFLAGS := -Iinclude -MMD -MP
 CFLAGS   := -Wall -pedantic -O2 -g
@@ -15,9 +17,12 @@ LDLIBS   := -lglut -lGLU -lGL -lm
 
 .PHONY: all clean
 
-all: $(EXE)
+all: $(MAIN) $(PLAY)
 
-$(EXE): $(OBJ) | $(BIN_DIR)
+$(PLAY): $(filter-out %main.o, $(OBJ)) | $(BIN_DIR)
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+
+$(MAIN):  $(filter-out %playground.o, $(OBJ)) | $(BIN_DIR)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)

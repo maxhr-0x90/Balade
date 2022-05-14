@@ -9,9 +9,11 @@
 #include "../inc/model.h"
 #include "../inc/player.h"
 #include "../inc/light.h"
+#include "../inc/gl_util.h"
 #include "../inc/model_generator.h"
 #include "../inc/asset_placement.h"
 #include "../inc/model_loader.h"
+#include "../inc/tests.h"
 
 #define LARGEUR_FEN 800
 #define HAUTEUR_FEN 800
@@ -20,20 +22,17 @@
 #define RIGHT 2
 #define LEFT 4
 #define UP 8
+#define L1 16
+#define R1 32
 
 int mouse_x_g, mouse_y_g;
 
-int just_entered = 1;
+int fps_g = 0;
 
 player player_g;
+float radius_g, phi_g, theta_g;
 
-model mod_g, mod2_g;
-
-mod_inst inst_g, inst2_g;
-
-light light_g;
-
-int forward_g, back_g, left_g, right_g;
+int forward_g, back_g, left_g, right_g, upward_g, downward_g;
 
 int wind_width_g = LARGEUR_FEN;
 int wind_height_g = HAUTEUR_FEN;
@@ -41,13 +40,34 @@ int wind_height_g = HAUTEUR_FEN;
 GLdouble fovz_g = 67;
 GLdouble ratio_g = 1;
 
+void lookat_fps();
+void lookat_god();
+void player_update_fps();
+void player_update_god();
+
 void affichage(){
+  glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
   gluPerspective(fovz_g, ratio_g, 0.1, 100);
+  if (fps_g){
+    lookat_fps();
+  } else {
+    lookat_god();
+  }
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  test_triangle_AABB_intersection();
+
+  glFlush();
+}
+
+void lookat_fps(){
   gluLookAt(
     player_g->pos[0], 
     player_g->pos[1], 
@@ -59,94 +79,23 @@ void affichage(){
     player_g->up[1], 
     player_g->up[2]
   );
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  place_light(light_g, GL_LIGHT0);
-
-  place_model(inst_g);
-  place_model(inst2_g);
-
-  glFlush();
 }
 
-void entry(int state){
-  just_entered = (state == GLUT_ENTERED);
-}
+void lookat_god(){
+  float cos_phi = cosf(phi_g);
+  float sin_phi = sinf(phi_g);
+  float cos_theta = cosf(theta_g);
+  float sin_theta = sinf(theta_g);
 
-void motion(int x, int y){
-  if (just_entered){
-    mouse_x_g = x;
-    mouse_y_g = y;
-    just_entered = 0;
-    return;
-  }
-
-  int dx = x - mouse_x_g;
-  int dy = y - mouse_y_g;
-
-  float theta = (float)dx / wind_height_g * (fovz_g * ratio_g * M_PI / 180);
-  float phi = (float)dy / wind_height_g * (fovz_g * M_PI / 180);
-
-  mouse_x_g = x;
-  mouse_y_g = y;
-
-  player_set_cam(player_g->phi + phi, player_g->theta + theta, player_g);
-
-  glutPostRedisplay();
-}
-
-void keydown(unsigned char key, int x, int y){
-  switch (key){
-  case 'w':
-    forward_g = 1;
-    back_g = 0;
-    break;
-  
-  case 'a':
-    left_g = 1;
-    right_g = 0;
-    break;
-
-  case 's':
-    forward_g = 0;
-    back_g = 1;
-    break;
-
-  case 'd':
-    left_g = 0;
-    right_g = 1;
-    break;
-  
-  default:
-    break;
-  }
-  
-}
-
-void keyup(unsigned char key, int x, int y){
-  switch (key){
-  case 'w':
-    forward_g = 0;
-    break;
-  
-  case 'a':
-    left_g = 0;
-    break;
-
-  case 's':
-    back_g = 0;
-    break;
-
-  case 'd':
-    right_g = 0;
-    break;
-  
-  default:
-    break;
-  }
-  
+  gluLookAt(
+    cos_phi * cos_theta * radius_g, 
+    cos_phi * sin_theta * radius_g, 
+    sin_phi * radius_g, 
+    0, 0, 0, 
+    -sin_phi * cos_theta, 
+    -sin_phi * sin_theta, 
+    cos_phi
+  );
 }
 
 void reshape(int width, int height){
@@ -157,12 +106,20 @@ void reshape(int width, int height){
 }
 
 void idle(){
-  if (!(forward_g | back_g | left_g | right_g)){ return; }
+  if (fps_g){
+    player_update_fps();
+  } else {
+    glutPostRedisplay();
+  }
+}
 
-  float delta = 0.005f;
+void player_update_fps(){
+  if (!(forward_g | back_g | left_g | right_g | downward_g | upward_g)){ return; }
+
+  float delta = 0.01f;
 
   player_g->speed[0] = 0;
-  player_g->speed[1] = 0;
+  player_g->speed[1] = 0; 
 
   if (forward_g){
     player_g->speed[0] += cosf(player_g->theta);
@@ -180,37 +137,46 @@ void idle(){
     player_g->speed[1] += cosf(player_g->theta);
   }
 
-  normalizev2(player_g->speed);
+  if (downward_g){
+    player_g->pos[2] -= delta;
+  } else if (upward_g){
+    player_g->pos[2] += delta;
+  }
 
-  step(delta, player_g);
-  setup_torch(&light_g, player_g);
+  if (right_g | left_g | forward_g | back_g){
+    normalizev2(player_g->speed);
+    step(delta, player_g);
+  }
 
   glutPostRedisplay();
 }
 
-void joystick(unsigned int buttonMask, int x, int y, int z){
-  if (buttonMask & DOWN & ~UP){
-    back_g = 1;
-  } else {
-    back_g = 0;
-  }
+void joystick_player(unsigned int buttonMask, int x, int y, int z){
+  forward_g = 0;
+  back_g = 0;
+  left_g = 0;
+  right_g = 0;
+  downward_g = 0;
+  upward_g = 0;
 
-  if (buttonMask & RIGHT & ~LEFT){
-    right_g = 1;
-  } else {
-    right_g = 0;
-  }
+  if (buttonMask){
+    if (buttonMask & DOWN){
+      back_g = 1;
+    } else if (buttonMask & UP){
+      forward_g = 1;
+    }
 
-  if (buttonMask & LEFT & ~RIGHT){
-    left_g = 1;
-  } else {
-    left_g = 0;
-  }
+    if (buttonMask & LEFT){
+      left_g = 1;
+    } else if (buttonMask & RIGHT){
+      right_g = 1;
+    }
 
-  if (buttonMask & UP & ~DOWN){
-    forward_g = 1;
-  } else {
-    forward_g = 0;
+    if (buttonMask & L1){
+      downward_g = 1;
+    } else if (buttonMask & R1){
+      upward_g = 1;
+    }
   }
 
   if (x != 0 || y != 0){
@@ -218,9 +184,53 @@ void joystick(unsigned int buttonMask, int x, int y, int z){
     float theta = ((-x * 0.18) * M_PI / 180) * angluar_speed;
     float phi = ((y * 0.18) * M_PI / 180) * angluar_speed;
     player_set_cam(player_g->phi + phi, player_g->theta + theta, player_g);
-    setup_torch(&light_g, player_g);
     glutPostRedisplay();
   }
+}
+
+void joystick_god(unsigned int buttonMask, int x, int y, int z){
+  if (buttonMask & L1){
+    radius_g -= 1;
+    radius_g = radius_g <= 0.5 ? 0.5 : radius_g;
+  } else if (buttonMask & R1){
+    radius_g += 1;
+  }
+
+  if (x != 0 || y != 0){
+    float angluar_speed = 0.05;
+    float theta = ((x * 0.18) * M_PI / 180) * angluar_speed;
+    float phi = ((-y * 0.18) * M_PI / 180) * angluar_speed;
+    theta_g += theta;
+    phi_g += phi;
+
+    if (theta_g > M_PI){
+      theta_g -= 2 * M_PI;
+    } else if (theta < -M_PI){
+      theta_g += 2 * M_PI;
+    }
+
+    if (phi_g > M_PI){
+      phi_g -= 2 * M_PI;
+    } else if (phi < -M_PI){
+      phi_g += 2 * M_PI;
+    }
+  }
+}
+
+void keydown(unsigned char key, int x, int y){
+  switch (key){
+  case 'f':
+    fps_g = !fps_g;
+     if (fps_g){
+        glutJoystickFunc(joystick_player, 50);
+      } else {
+        glutJoystickFunc(joystick_god, 50);
+      }
+  
+  default:
+    break;
+  }
+  
 }
 
 void fenetre(int argc, char *argv[]){
@@ -233,29 +243,22 @@ void fenetre(int argc, char *argv[]){
 
   glutCreateWindow("Fraude.");
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
 
   glutDisplayFunc(affichage);
 
   glutIdleFunc(idle);
 
   /* Controle manette */
-  glutJoystickFunc(joystick, 50);
+  if (fps_g){
+    glutJoystickFunc(joystick_player, 50);
+  } else {
+    glutJoystickFunc(joystick_god, 50);
+  }
 
-  /* Controles clavier - souris */
-  // glutKeyboardFunc(keydown);
-  // glutKeyboardUpFunc(keyup);
-
-  //glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-
-  //glutPassiveMotionFunc(motion);
-
-  //glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
+  glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
+  glutKeyboardFunc(keydown);
 
   glutReshapeFunc(reshape);
-
-  glutEntryFunc(entry);
 
   glutMainLoop();
 }
@@ -275,6 +278,10 @@ void usage(char *nom_prog){
 }
 
 int main(int argc, char *argv[]){
+  radius_g = 10.0f;
+  phi_g = 0;
+  theta_g = 0;
+
   player_g = player_init();
   player_set_pos(-10, 0, 2, player_g);
 
@@ -282,13 +289,8 @@ int main(int argc, char *argv[]){
   back_g = 0;
   left_g = 0;
   right_g = 0;
-
-  light_default(&light_g);
-  light_ambient(1, 1, 1, 1, &light_g);
-  light_specular(0.2, 0.2, 0.2, 1.0, &light_g);
-  light_spot_cutoff(70, &light_g);
-
-  setup_torch(&light_g, player_g);
+  downward_g = 0;
+  upward_g = 0;
 
   int opt;
   while((opt = getopt(argc, argv, "h")) != -1) { 
@@ -297,16 +299,6 @@ int main(int argc, char *argv[]){
       case '?': fprintf(stderr, "Err: Option non reconnue\n"); usage(argv[0]); break; 
     } 
   } 
-
-  mod_g = plane(100, 100, 10, 10);
-  mod2_g = load_model("models/pine.swag");
-
-  inst_g.mod = mod_g;
-  trans_id(inst_g.mat);
-  trans_rotate(M_PI_4, 0, 0, 1, inst_g.mat);
-
-  inst2_g.mod = mod2_g;
-  trans_id(inst2_g.mat);
 
   fenetre(argc, argv);
 

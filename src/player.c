@@ -69,3 +69,8 @@ void step(float delta, player p){
   p->pos[0] += p->speed[0] * delta;
   p->pos[1] += p->speed[1] * delta;
 }
+
+void setup_torch(light *torch, player p){
+  light_position(p->pos[0], p->pos[1], p->pos[2], 1, torch);
+  light_direction(p->dir[0], p->dir[1], p->dir[2], torch);
+}
