@@ -10,6 +10,21 @@ GLfloat normv3(vector3f v3){
   return sqrtf(v3[0]*v3[0] + v3[1]*v3[1] + v3[2]*v3[2]);
 }
 
+void addv3(vector3f u, vector3f v, vector3f dest){
+  vector3f d = {u[0] + v[0], u[1] + v[1], u[2] + v[2]};
+  vec3_cpy(d, dest);
+}
+
+void subv3(vector3f u, vector3f v, vector3f dest){
+  vector3f d = {u[0] - v[0], u[1] - v[1], u[2] - v[2]};
+  vec3_cpy(d, dest);
+}
+
+void multv3(vector3f u, float k){
+  vector3f v = {u[0] * k, u[1] * k, u[2] * k};
+  vec3_cpy(v, u);
+}
+
 // GLfloat Q_rsqrt(GLfloat number){
 // 	long i;
 // 	GLfloat x2, y;

@@ -3,6 +3,6 @@
 
 #include "model.h"
 
-model plane(float width, float height, int divw, int divh);
+model ground_model(float width, float height, int divw, int divh);
 
 #endif

@@ -57,3 +57,16 @@ void draw_axes(float length){
 
   glEnd();
 }
+
+void draw_frustum(trans_3d proj){
+  trans_3d inv_proj;
+  vector3f c000 = {-1, -1, -1};
+  vector3f c111 = {1, 1, 1};
+
+  inverse(proj, inv_proj);
+
+  glPushMatrix();
+  glLoadMatrixf(inv_proj);
+  draw_cube(c000, c111);
+  glPopMatrix();
+}

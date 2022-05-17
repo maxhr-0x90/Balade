@@ -43,4 +43,8 @@ partial partial_init(mod_inst inst);
 
 void partial_free(partial part);
 
+void partial_fuse(partial add, partial dest);
+
+void print_partial(partial p);
+
 #endif

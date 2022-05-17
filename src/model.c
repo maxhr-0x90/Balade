@@ -1,6 +1,8 @@
 #include "../inc/model.h"
 #include "../inc/alloc.h"
 
+#include <stdio.h>
+
 // Initialise un modèle
 model model_init(int parts){
   model m = safe_alloc(sizeof(struct model_s));
@@ -68,4 +70,21 @@ void partial_free(partial part){
 
   set_free(part->mask);
   safe_free(part);
+}
+
+void partial_fuse(partial add, partial dest){
+  if (add == NULL || dest == NULL){ return; }
+  if (add->parent != dest->parent){ return; }
+
+  set_union(add->mask, dest->mask, dest->mask);
+}
+
+void print_partial(partial p){
+  printf("parent: %p\n", (void *)p->parent);
+  printf("mask: ");
+
+  for (int i = 0; i < array_size(p->parent->mod->parts); i++){
+    printf("%d ", set_has(i, p->mask));
+  }
+  printf("\n");
 }

@@ -57,7 +57,7 @@ octree tree_g;
 void init_test_octree(){
   instances_g = array_init(8);
 
-  model p = plane(100, 100, 10, 10);
+  model p = ground_model(100, 100, 10, 10);
   model pine = load_model("models/pine.swag");
 
   array_add(inst_init(p), instances_g);
@@ -65,20 +65,48 @@ void init_test_octree(){
 
   vector3f c000 = {-20, -20, -10};
   vector3f c111 = {20, 20, 30};
-  tree_g = object_density(instances_g, 2, 4, c000, c111);
+  tree_g = object_density(instances_g, 1, 4, c000, c111);
 }
 
 void test_octree(){
   for (int i = 0; i < array_size(instances_g); i++){
+    glColor3f(1, 1, 1);
     place_wire_model(array_get(i, instances_g));
   }
   
   octree_render(tree_g);
 }
 
+frustum frustum_g;
+
+void test_octree_frutum(trans_3d proj){
+  frustum_g = frustum_init(proj, NULL);
+  
+  octree_render_frustum(tree_g, frustum_g);
+
+  frustum_free(frustum_g);
+}
+
+void test_octree_final(trans_3d proj){
+  frustum_g = frustum_init(proj, NULL);
+
+  array rend = octree_renderable_meshes(tree_g, frustum_g);
+  for (int i = 0; i < array_size(rend); i++){
+    place_wire_partial(array_get(i, rend));
+  }
+
+  octree_render_frustum(tree_g, frustum_g);
+
+  for (int i = 0; i < array_size(rend); i++){ partial_free(array_get(i, rend)); }
+  array_free(0, rend);
+  frustum_free(frustum_g);
+}
+
 
 void test_set(){
   set s = set_init(50);
+  set s2 = set_init(50);
+  set s3 = set_init(50);
 
   printf("is empty %s\n", set_is_empty(s) ? "true" : "false");
 
@@ -117,5 +145,30 @@ void test_set(){
 
   printf("is empty %s\n", set_is_empty(s) ? "true" : "false");
 
+  set_add(3, s2);
+  set_add(44, s2);
+  set_add(10, s2);
+  set_add(11, s2);
+  set_add(12, s2);
+  set_add(13, s2);
+  set_add(14, s2);
+  set_add(15, s2);
+  set_add(16, s2);
+
+  printf("%d\n", set_size(s3));
+  printf("%d\n", set_size(s));
+
+  set_union(s, s2, s3);
+  set_union(s, s2, s);
+
+  printf("%d\n", set_size(s3));
+  printf("%d\n", set_size(s));
+
+  print_set(s);
+  print_set(s2);
+  print_set(s3);
+
   set_free(s);
+  set_free(s2);
+  set_free(s3);
 }

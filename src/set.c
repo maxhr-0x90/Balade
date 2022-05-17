@@ -38,7 +38,7 @@ void set_rem(int i, set s){
 int set_has(int i, set s){
   if (s == NULL || i < 0 || i >= s->cap){ return 0; }
 
-  return ((s->set[i / CELL_VOL] & ~(1 << (i % CELL_VOL))) != 0);
+  return ((s->set[i / CELL_VOL] & (1 << (i % CELL_VOL))) != 0);
 }
 
 int set_is_empty(set s){
@@ -96,4 +96,11 @@ void set_inter(set a, set b, set out){
   for (int i = 0; i < (a->cap / CELL_VOL); i++){ 
     out->set[i] = a->set[i] & b->set[i]; 
   }
+}
+
+void print_set(set s){
+  for (int i = 0; i < s->cap; i++){
+    printf("%d ", set_has(i, s));
+  }
+  printf("\n");
 }

@@ -298,7 +298,7 @@ int main(int argc, char *argv[]){
     } 
   } 
 
-  mod_g = plane(100, 100, 10, 10);
+  mod_g = ground_model(100, 100, 10, 10);
   mod2_g = load_model("models/pine.swag");
 
   inst_g = inst_init(mod_g);

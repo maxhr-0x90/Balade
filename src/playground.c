@@ -52,10 +52,15 @@ void affichage(){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  gluPerspective(fovz_g, ratio_g, 0.1, 100);
-  if (fps_g){
-    lookat_fps();
-  } else {
+  trans_3d proj;
+
+  gluPerspective(fovz_g, ratio_g, 1, 50);
+  lookat_fps();
+  glGetFloatv(GL_PROJECTION_MATRIX, proj);
+
+  if (!fps_g){
+    glLoadIdentity();
+    gluPerspective(fovz_g, ratio_g, 0.1, 100);
     lookat_god();
   }
 
@@ -63,7 +68,14 @@ void affichage(){
   glLoadIdentity();
 
   //test_triangle_AABB_intersection();
-  test_octree();
+  //test_octree_frutum(proj);
+  test_octree_final(proj);
+
+  if (!fps_g){
+    glColor3f(0, 0, 1);
+    draw_frustum(proj);
+    glColor3f(1, 1, 1);
+  }
 
   glFlush();
 }
@@ -109,8 +121,6 @@ void reshape(int width, int height){
 void idle(){
   if (fps_g){
     player_update_fps();
-  } else {
-    glutPostRedisplay();
   }
 }
 
@@ -193,8 +203,10 @@ void joystick_god(unsigned int buttonMask, int x, int y, int z){
   if (buttonMask & L1){
     radius_g -= 1;
     radius_g = radius_g <= 0.5 ? 0.5 : radius_g;
+    glutPostRedisplay();
   } else if (buttonMask & R1){
     radius_g += 1;
+    glutPostRedisplay();
   }
 
   if (x != 0 || y != 0){
@@ -215,6 +227,8 @@ void joystick_god(unsigned int buttonMask, int x, int y, int z){
     } else if (phi < -M_PI){
       phi_g += 2 * M_PI;
     }
+
+    glutPostRedisplay();
   }
 }
 
@@ -222,11 +236,13 @@ void keydown(unsigned char key, int x, int y){
   switch (key){
   case 'f':
     fps_g = !fps_g;
-     if (fps_g){
-        glutJoystickFunc(joystick_player, 50);
-      } else {
-        glutJoystickFunc(joystick_god, 50);
-      }
+    if (fps_g){
+      glutJoystickFunc(joystick_player, 50);
+    } else {
+      glutJoystickFunc(joystick_god, 50);
+    }
+    glutPostRedisplay();
+    break;
   
   default:
     break;
@@ -284,7 +300,7 @@ int main(int argc, char *argv[]){
   theta_g = 0;
 
   player_g = player_init();
-  player_set_pos(-10, 0, 2, player_g);
+  player_set_pos(-1, 0, 0, player_g);
 
   forward_g = 0;
   back_g = 0;
@@ -304,6 +320,6 @@ int main(int argc, char *argv[]){
   } 
 
   fenetre(argc, argv);
-
+  
   return 0;
 }

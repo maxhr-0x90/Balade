@@ -23,7 +23,7 @@ float heightmap(
   return height/scaleh;
 }
 
-model plane(float width, float height, int divw, int divh){
+model ground_model(float width, float height, int divw, int divh){
   model mod = model_init(1);
 
   material mat = {

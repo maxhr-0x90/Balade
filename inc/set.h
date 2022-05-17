@@ -22,4 +22,6 @@ int set_size(set s);
 void set_union(set a, set b, set out);
 void set_inter(set a, set b, set out);
 
+void print_set(set s);
+
 #endif

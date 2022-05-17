@@ -130,9 +130,6 @@ void octree_render(octree ot){
   if (ot == NULL){ return; }
 
   karbre_render(ot->tree, ot->c000, ot->c111);
-
-  glColor3f(1, 1, 1);
-  draw_cube(ot->c000, ot->c111);
 }
 
 void karbre_render(karbre a, vector3f c000, vector3f c111){
@@ -170,4 +167,147 @@ void karbre_render(karbre a, vector3f c000, vector3f c111){
   karbre_render(kFils(5, a), c222, c111);
   karbre_render(kFils(6, a), c220, c112);
   karbre_render(kFils(7, a), c020, c212);
+}
+
+
+void karbre_render_frustum(karbre a, frustum f, vector3f c000, vector3f c111);
+
+void octree_render_frustum(octree ot, frustum f){
+  if (ot == NULL || f == NULL){ return; }
+
+  karbre_render_frustum(ot->tree, f, ot->c000, ot->c111);
+  glColor3f(1, 1, 1);
+  draw_cube(ot->c000, ot->c111);
+}
+
+void karbre_render_frustum(karbre a, frustum f, vector3f c000, vector3f c111){
+  if (frustum_AABB_intersect(f, c000, c111) == OUTSIDE){ return; }
+  if (a->k == 0){
+    glColor3f(1, 0, 0);
+    draw_cube(c000, c111);
+    return;
+  }
+
+  float halfx = (c000[0] + c111[0]) / 2;
+  float halfy = (c000[1] + c111[1]) / 2;
+  float halfz = (c000[2] + c111[2]) / 2;
+
+  vector3f c200 = {halfx, c000[1], c000[2]};
+  vector3f c020 = {c000[0], halfy, c000[2]};
+  vector3f c002 = {c000[0], c000[1], halfz};
+  vector3f c022 = {c000[0], halfy, halfz};
+  vector3f c202 = {halfx, c000[1], halfz};
+  vector3f c220 = {halfx, halfy, c000[2]};
+
+  vector3f c222 = {halfx, halfy, halfz};
+
+  vector3f c122 = {c111[0], halfy, halfz};
+  vector3f c212 = {halfx, c111[1], halfz};
+  vector3f c221 = {halfx, halfy, c111[2]};
+  vector3f c211 = {halfx, c111[1], c111[2]};
+  vector3f c121 = {c111[0], halfy, c111[2]};
+  vector3f c112 = {c111[0], c111[1], halfz};
+
+  karbre_render_frustum(kFils(0, a), f, c002, c221);
+  karbre_render_frustum(kFils(1, a), f, c202, c121);
+  karbre_render_frustum(kFils(2, a), f, c200, c122);
+  karbre_render_frustum(kFils(3, a), f, c000, c222);
+  karbre_render_frustum(kFils(4, a), f, c022, c211);
+  karbre_render_frustum(kFils(5, a), f, c222, c111);
+  karbre_render_frustum(kFils(6, a), f, c220, c112);
+  karbre_render_frustum(kFils(7, a), f, c020, c212);
+}
+
+array karbre_renderable_meshes(karbre a, frustum f, vector3f c000, vector3f c111);
+void fuse_child(array child, array dest);
+void fuse_partials(array add, array dest);
+
+array octree_renderable_meshes(octree ot, frustum f){
+  if (ot == NULL || f == NULL){ return NULL; }
+
+  return karbre_renderable_meshes(ot->tree, f, ot->c000, ot->c111);
+}
+
+array karbre_renderable_meshes(karbre a, frustum f, vector3f c000, vector3f c111){
+  if (frustum_AABB_intersect(f, c000, c111) == OUTSIDE){ return NULL; }
+  if (a->k == 0){
+    array partials = array_init(4);
+    fuse_partials(kRacine(a), partials);
+    return partials;
+  }
+
+  float halfx = (c000[0] + c111[0]) / 2;
+  float halfy = (c000[1] + c111[1]) / 2;
+  float halfz = (c000[2] + c111[2]) / 2;
+
+  vector3f c200 = {halfx, c000[1], c000[2]};
+  vector3f c020 = {c000[0], halfy, c000[2]};
+  vector3f c002 = {c000[0], c000[1], halfz};
+  vector3f c022 = {c000[0], halfy, halfz};
+  vector3f c202 = {halfx, c000[1], halfz};
+  vector3f c220 = {halfx, halfy, c000[2]};
+
+  vector3f c222 = {halfx, halfy, halfz};
+
+  vector3f c122 = {c111[0], halfy, halfz};
+  vector3f c212 = {halfx, c111[1], halfz};
+  vector3f c221 = {halfx, halfy, c111[2]};
+  vector3f c211 = {halfx, c111[1], c111[2]};
+  vector3f c121 = {c111[0], halfy, c111[2]};
+  vector3f c112 = {c111[0], c111[1], halfz};
+
+  array child;
+  array partials = array_init(32);
+
+  child = karbre_renderable_meshes(kFils(0, a), f, c002, c221);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(1, a), f, c202, c121);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(2, a), f, c200, c122);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(3, a), f, c000, c222);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(4, a), f, c022, c211);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(5, a), f, c222, c111);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(6, a), f, c220, c112);
+  fuse_child(child, partials);
+
+  child = karbre_renderable_meshes(kFils(7, a), f, c020, c212);
+  fuse_child(child, partials);
+
+  return partials;
+}
+
+void fuse_child(array child, array dest){
+  if (child == NULL){ return; }
+
+  fuse_partials(child, dest);
+  for (int i = 0; i < array_size(child); i++){ partial_free(array_get(i, child)); }
+  array_free(0, child);
+}
+
+void fuse_partials(array add, array dest){
+  for (int i = 0; i < array_size(add); i++) {
+    int already_in = 0;
+    for (int j = 0; j < array_size(dest); j++) {
+      if (((partial)array_get(j, dest))->parent == ((partial)array_get(i, add))->parent){
+        already_in = 1;
+        partial_fuse(array_get(i, add), array_get(j, dest));
+      }
+    }
+
+    if (!already_in){
+      partial cpy = partial_init(((partial)array_get(i, add))->parent);
+      partial_fuse(array_get(i, add), cpy);
+      array_add(cpy, dest);
+    }
+  }
 }
