@@ -14,6 +14,10 @@ void addv3(vector3f u, vector3f v, vector3f dest);
 void subv3(vector3f u, vector3f v, vector3f dest);
 void multv3(vector3f u, float k);
 
+void addv2(vector2f u, vector2f v, vector2f dest);
+void subv2(vector2f u, vector2f v, vector2f dest);
+void multv2(vector2f u, float k);
+
 void normalizev2(vector2f v2);
 void normalizev3(vector3f v3);
 

@@ -9,6 +9,7 @@ struct player_s{
   vector3f dir, up, right, pos;
   vector2f speed;
   float phi, theta;
+  float radius;
 };
 
 player player_init();
@@ -21,7 +22,7 @@ void player_set_speed(float x, float y, player p);
 
 void player_set_cam(float phi, float theta, player p);
 
-void step(float delta, player p);
+void step(player p);
 
 void setup_torch(light *torch, player p);
 

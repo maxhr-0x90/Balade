@@ -5,6 +5,7 @@
 #include "mesh.h"
 #include "transform_3d.h"
 #include "set.h"
+#include "hitbox.h"
 
 typedef struct model_s* model;
 struct model_s {

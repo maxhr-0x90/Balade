@@ -25,6 +25,21 @@ void multv3(vector3f u, float k){
   vec3_cpy(v, u);
 }
 
+void addv2(vector2f u, vector2f v, vector2f dest){
+  vector2f d = {u[0] + v[0], u[1] + v[1]};
+  vec2_cpy(d, dest);
+}
+
+void subv2(vector2f u, vector2f v, vector2f dest){
+  vector2f d = {u[0] - v[0], u[1] - v[1]};
+  vec2_cpy(d, dest);
+}
+
+void multv2(vector2f u, float k){
+  vector2f v = {u[0] * k, u[1] * k};
+  vec2_cpy(v, u);
+}
+
 // GLfloat Q_rsqrt(GLfloat number){
 // 	long i;
 // 	GLfloat x2, y;

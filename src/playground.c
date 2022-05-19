@@ -70,6 +70,7 @@ void affichage(){
   //test_triangle_AABB_intersection();
   //test_octree_frutum(proj);
   test_octree_final(proj);
+  //test_collision_render(player_g);
 
   if (!fps_g){
     glColor3f(0, 0, 1);
@@ -156,7 +157,8 @@ void player_update_fps(){
 
   if (right_g | left_g | forward_g | back_g){
     normalizev2(player_g->speed);
-    step(delta, player_g);
+    multv2(player_g->speed, delta);
+    test_collision(player_g);
   }
 
   glutPostRedisplay();
@@ -300,7 +302,7 @@ int main(int argc, char *argv[]){
   theta_g = 0;
 
   player_g = player_init();
-  player_set_pos(-1, 0, 0, player_g);
+  player_set_pos(-10, 0, 2, player_g);
 
   forward_g = 0;
   back_g = 0;
@@ -310,6 +312,7 @@ int main(int argc, char *argv[]){
   upward_g = 0;
 
   init_test_octree();
+  init_test_quadtree();
 
   int opt;
   while((opt = getopt(argc, argv, "h")) != -1) { 
@@ -320,6 +323,6 @@ int main(int argc, char *argv[]){
   } 
 
   fenetre(argc, argv);
-  
+
   return 0;
 }

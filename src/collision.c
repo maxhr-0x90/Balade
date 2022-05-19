@@ -176,3 +176,78 @@ float max3 (float f1, float f2, float f3){
     }
   }
 }
+
+
+int circle_circle_overlap(
+  vector2f c1, float r1,
+  vector2f c2, float r2
+) {
+  vector2f dist;
+  subv2(c1, c2, dist);
+
+  return (normv2(dist) < r1 + r2);
+}
+
+int circle_circle_inside(
+  vector2f cin, float rin,
+  vector2f cout, float rout
+) {
+  vector2f dist;
+  subv2(cin, cout, dist);
+
+  return (normv2(dist) <= rout - rin);
+}
+
+int circle_aabb_overlap(
+  vector2f c, float r,
+  vector2f mid, vector2f h
+) {
+  vector2f dist = {abs(c[0] - mid[0]), abs(c[1] - mid[1])};
+
+  if (dist[0] > (h[0] + r)) { return 0; }
+  if (dist[1] > (h[1] + r)) { return 0; }
+
+  if (dist[0] <= h[0]) { return 1; } 
+  if (dist[1] <= h[1]) { return 1; }
+
+  float corner_dist = powf((dist[0] - h[0]), 2) + powf((dist[1] - h[1]), 2);
+
+  return (corner_dist <= (r * r));
+}
+
+int circle_aabb_inside(
+  vector2f c, float r,
+  vector2f mid, vector2f h
+) {
+  vector2f dist = {fabsf(c[0] - mid[0]), fabsf(c[1] - mid[1])};
+
+  return ((dist[0] <= (h[0] - r)) && (dist[1] <= (h[1] - r)));
+}
+
+int aabb_aabb_overlap(
+  vector2f mid1, vector2f h1,
+  vector2f mid2, vector2f h2
+) {
+  vector2f dist = {abs(mid1[0] - mid2[0]), abs(mid1[1] - mid2[1])};
+
+  return (dist[0] < h1[0] + h2[0] && dist[1] < h1[1] + h2[1]);
+}
+
+int obb_aabb_overlap(
+  vector2f c, vector2f hx, vector2f hy,
+  vector2f mid, vector2f h
+) {
+  vector2f t = {mid[0] - c[0], mid[1] - c[1]};
+  vector2f nx, ny;
+  vec2_cpy(hx, nx);
+  vec2_cpy(hy, ny);
+  normalizev2(nx);
+  normalizev2(ny);
+
+  if (fabsf(t[0]) > h[0] + hx[0] + hy[0]){ return 0; }
+  if (fabsf(t[1]) > h[1] + hx[1] + hy[1]){ return 0; }
+  if (fabsf(dotv2(t, nx)) > fabsf(h[0] * nx[0]) + fabsf(h[1] * nx[1]) + normv2(hx)){ return 0; }
+  if (fabsf(dotv2(t, ny)) > fabsf(h[0] * ny[0]) + fabsf(h[1] * ny[1]) + normv2(hy)){ return 0; }
+
+  return 1;
+}

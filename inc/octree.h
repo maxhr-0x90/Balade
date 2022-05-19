@@ -5,6 +5,7 @@
 #include "gen_array.h"
 #include "vector.h"
 #include "frustum.h"
+#include "player.h"
 
 typedef struct octree_s *octree;
 struct octree_s {

@@ -181,8 +181,8 @@ void idle(){
   }
 
   normalizev2(player_g->speed);
-
-  step(delta, player_g);
+  multv2(player_g->speed, delta);
+  step(player_g);
   setup_torch(&light_g, player_g);
 
   glutPostRedisplay();

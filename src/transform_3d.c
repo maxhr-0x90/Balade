@@ -94,131 +94,131 @@ void trans_scale(GLfloat x, GLfloat y, GLfloat z, trans_3d mat){
 
 int inverse(trans_3d src, trans_3d dest){
   double inv[16], det;
-    int i;
+  int i;
 
-    inv[0] = src[5]  * src[10] * src[15] - 
-             src[5]  * src[11] * src[14] - 
-             src[9]  * src[6]  * src[15] + 
-             src[9]  * src[7]  * src[14] +
-             src[13] * src[6]  * src[11] - 
-             src[13] * src[7]  * src[10];
+  inv[0] = src[5]  * src[10] * src[15] - 
+            src[5]  * src[11] * src[14] - 
+            src[9]  * src[6]  * src[15] + 
+            src[9]  * src[7]  * src[14] +
+            src[13] * src[6]  * src[11] - 
+            src[13] * src[7]  * src[10];
 
-    inv[4] = -src[4]  * src[10] * src[15] + 
-              src[4]  * src[11] * src[14] + 
-              src[8]  * src[6]  * src[15] - 
-              src[8]  * src[7]  * src[14] - 
-              src[12] * src[6]  * src[11] + 
-              src[12] * src[7]  * src[10];
+  inv[4] = -src[4]  * src[10] * src[15] + 
+            src[4]  * src[11] * src[14] + 
+            src[8]  * src[6]  * src[15] - 
+            src[8]  * src[7]  * src[14] - 
+            src[12] * src[6]  * src[11] + 
+            src[12] * src[7]  * src[10];
 
-    inv[8] = src[4]  * src[9] * src[15] - 
-             src[4]  * src[11] * src[13] - 
-             src[8]  * src[5] * src[15] + 
-             src[8]  * src[7] * src[13] + 
-             src[12] * src[5] * src[11] - 
-             src[12] * src[7] * src[9];
+  inv[8] = src[4]  * src[9] * src[15] - 
+            src[4]  * src[11] * src[13] - 
+            src[8]  * src[5] * src[15] + 
+            src[8]  * src[7] * src[13] + 
+            src[12] * src[5] * src[11] - 
+            src[12] * src[7] * src[9];
 
-    inv[12] = -src[4]  * src[9] * src[14] + 
-               src[4]  * src[10] * src[13] +
-               src[8]  * src[5] * src[14] - 
-               src[8]  * src[6] * src[13] - 
-               src[12] * src[5] * src[10] + 
-               src[12] * src[6] * src[9];
+  inv[12] = -src[4]  * src[9] * src[14] + 
+              src[4]  * src[10] * src[13] +
+              src[8]  * src[5] * src[14] - 
+              src[8]  * src[6] * src[13] - 
+              src[12] * src[5] * src[10] + 
+              src[12] * src[6] * src[9];
 
-    inv[1] = -src[1]  * src[10] * src[15] + 
-              src[1]  * src[11] * src[14] + 
-              src[9]  * src[2] * src[15] - 
-              src[9]  * src[3] * src[14] - 
-              src[13] * src[2] * src[11] + 
-              src[13] * src[3] * src[10];
+  inv[1] = -src[1]  * src[10] * src[15] + 
+            src[1]  * src[11] * src[14] + 
+            src[9]  * src[2] * src[15] - 
+            src[9]  * src[3] * src[14] - 
+            src[13] * src[2] * src[11] + 
+            src[13] * src[3] * src[10];
 
-    inv[5] = src[0]  * src[10] * src[15] - 
-             src[0]  * src[11] * src[14] - 
-             src[8]  * src[2] * src[15] + 
-             src[8]  * src[3] * src[14] + 
-             src[12] * src[2] * src[11] - 
-             src[12] * src[3] * src[10];
+  inv[5] = src[0]  * src[10] * src[15] - 
+            src[0]  * src[11] * src[14] - 
+            src[8]  * src[2] * src[15] + 
+            src[8]  * src[3] * src[14] + 
+            src[12] * src[2] * src[11] - 
+            src[12] * src[3] * src[10];
 
-    inv[9] = -src[0]  * src[9] * src[15] + 
-              src[0]  * src[11] * src[13] + 
-              src[8]  * src[1] * src[15] - 
-              src[8]  * src[3] * src[13] - 
-              src[12] * src[1] * src[11] + 
-              src[12] * src[3] * src[9];
+  inv[9] = -src[0]  * src[9] * src[15] + 
+            src[0]  * src[11] * src[13] + 
+            src[8]  * src[1] * src[15] - 
+            src[8]  * src[3] * src[13] - 
+            src[12] * src[1] * src[11] + 
+            src[12] * src[3] * src[9];
 
-    inv[13] = src[0]  * src[9] * src[14] - 
-              src[0]  * src[10] * src[13] - 
-              src[8]  * src[1] * src[14] + 
-              src[8]  * src[2] * src[13] + 
-              src[12] * src[1] * src[10] - 
-              src[12] * src[2] * src[9];
+  inv[13] = src[0]  * src[9] * src[14] - 
+            src[0]  * src[10] * src[13] - 
+            src[8]  * src[1] * src[14] + 
+            src[8]  * src[2] * src[13] + 
+            src[12] * src[1] * src[10] - 
+            src[12] * src[2] * src[9];
 
-    inv[2] = src[1]  * src[6] * src[15] - 
-             src[1]  * src[7] * src[14] - 
-             src[5]  * src[2] * src[15] + 
-             src[5]  * src[3] * src[14] + 
-             src[13] * src[2] * src[7] - 
-             src[13] * src[3] * src[6];
+  inv[2] = src[1]  * src[6] * src[15] - 
+            src[1]  * src[7] * src[14] - 
+            src[5]  * src[2] * src[15] + 
+            src[5]  * src[3] * src[14] + 
+            src[13] * src[2] * src[7] - 
+            src[13] * src[3] * src[6];
 
-    inv[6] = -src[0]  * src[6] * src[15] + 
-              src[0]  * src[7] * src[14] + 
-              src[4]  * src[2] * src[15] - 
-              src[4]  * src[3] * src[14] - 
-              src[12] * src[2] * src[7] + 
-              src[12] * src[3] * src[6];
+  inv[6] = -src[0]  * src[6] * src[15] + 
+            src[0]  * src[7] * src[14] + 
+            src[4]  * src[2] * src[15] - 
+            src[4]  * src[3] * src[14] - 
+            src[12] * src[2] * src[7] + 
+            src[12] * src[3] * src[6];
 
-    inv[10] = src[0]  * src[5] * src[15] - 
-              src[0]  * src[7] * src[13] - 
-              src[4]  * src[1] * src[15] + 
-              src[4]  * src[3] * src[13] + 
-              src[12] * src[1] * src[7] - 
-              src[12] * src[3] * src[5];
+  inv[10] = src[0]  * src[5] * src[15] - 
+            src[0]  * src[7] * src[13] - 
+            src[4]  * src[1] * src[15] + 
+            src[4]  * src[3] * src[13] + 
+            src[12] * src[1] * src[7] - 
+            src[12] * src[3] * src[5];
 
-    inv[14] = -src[0]  * src[5] * src[14] + 
-               src[0]  * src[6] * src[13] + 
-               src[4]  * src[1] * src[14] - 
-               src[4]  * src[2] * src[13] - 
-               src[12] * src[1] * src[6] + 
-               src[12] * src[2] * src[5];
+  inv[14] = -src[0]  * src[5] * src[14] + 
+              src[0]  * src[6] * src[13] + 
+              src[4]  * src[1] * src[14] - 
+              src[4]  * src[2] * src[13] - 
+              src[12] * src[1] * src[6] + 
+              src[12] * src[2] * src[5];
 
-    inv[3] = -src[1] * src[6] * src[11] + 
-              src[1] * src[7] * src[10] + 
-              src[5] * src[2] * src[11] - 
-              src[5] * src[3] * src[10] - 
-              src[9] * src[2] * src[7] + 
-              src[9] * src[3] * src[6];
+  inv[3] = -src[1] * src[6] * src[11] + 
+            src[1] * src[7] * src[10] + 
+            src[5] * src[2] * src[11] - 
+            src[5] * src[3] * src[10] - 
+            src[9] * src[2] * src[7] + 
+            src[9] * src[3] * src[6];
 
-    inv[7] = src[0] * src[6] * src[11] - 
-             src[0] * src[7] * src[10] - 
-             src[4] * src[2] * src[11] + 
-             src[4] * src[3] * src[10] + 
-             src[8] * src[2] * src[7] - 
-             src[8] * src[3] * src[6];
+  inv[7] = src[0] * src[6] * src[11] - 
+            src[0] * src[7] * src[10] - 
+            src[4] * src[2] * src[11] + 
+            src[4] * src[3] * src[10] + 
+            src[8] * src[2] * src[7] - 
+            src[8] * src[3] * src[6];
 
-    inv[11] = -src[0] * src[5] * src[11] + 
-               src[0] * src[7] * src[9] + 
-               src[4] * src[1] * src[11] - 
-               src[4] * src[3] * src[9] - 
-               src[8] * src[1] * src[7] + 
-               src[8] * src[3] * src[5];
+  inv[11] = -src[0] * src[5] * src[11] + 
+              src[0] * src[7] * src[9] + 
+              src[4] * src[1] * src[11] - 
+              src[4] * src[3] * src[9] - 
+              src[8] * src[1] * src[7] + 
+              src[8] * src[3] * src[5];
 
-    inv[15] = src[0] * src[5] * src[10] - 
-              src[0] * src[6] * src[9] - 
-              src[4] * src[1] * src[10] + 
-              src[4] * src[2] * src[9] + 
-              src[8] * src[1] * src[6] - 
-              src[8] * src[2] * src[5];
+  inv[15] = src[0] * src[5] * src[10] - 
+            src[0] * src[6] * src[9] - 
+            src[4] * src[1] * src[10] + 
+            src[4] * src[2] * src[9] + 
+            src[8] * src[1] * src[6] - 
+            src[8] * src[2] * src[5];
 
-    det = src[0] * inv[0] + src[1] * inv[4] + src[2] * inv[8] + src[3] * inv[12];
+  det = src[0] * inv[0] + src[1] * inv[4] + src[2] * inv[8] + src[3] * inv[12];
 
-    if (det == 0)
-        return 0;
+  if (det == 0)
+      return 0;
 
-    det = 1.0 / det;
+  det = 1.0 / det;
 
-    for (i = 0; i < 16; i++)
-        dest[i] = inv[i] * det;
+  for (i = 0; i < 16; i++)
+      dest[i] = inv[i] * det;
 
-    return 1;
+  return 1;
 }
 
 void aff_trans_3d(trans_3d tr){

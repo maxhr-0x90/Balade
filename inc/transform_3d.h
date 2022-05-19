@@ -4,7 +4,8 @@
 #include "GL/gl.h"
 #include "GL/glut.h"
 
-#include "../inc/vector.h"
+#include "vector.h"
+
 
 typedef GLfloat trans_3d[16];
 

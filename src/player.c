@@ -9,6 +9,7 @@ player player_init(){
   player_set_pos(0, 0, 0, p);
   player_set_speed(0, 0, p);
   player_set_cam(0, 0, p);
+  p->radius = .5f;
 
   return p;
 }
@@ -65,9 +66,9 @@ void player_set_cam(float phi, float theta, player p){
   vec3_cpy(up, p->up);
 }
 
-void step(float delta, player p){
-  p->pos[0] += p->speed[0] * delta;
-  p->pos[1] += p->speed[1] * delta;
+void step(player p){
+  p->pos[0] += p->speed[0];
+  p->pos[1] += p->speed[1];
 }
 
 void setup_torch(light *torch, player p){

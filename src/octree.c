@@ -3,6 +3,7 @@
 #include "../inc/model.h"
 #include "../inc/gl_util.h"
 #include "../inc/alloc.h"
+#include "../inc/hitbox.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +12,6 @@ karbre object_density_rec(
   array partials, int max_density, int depth, int max_depth, 
   vector3f c000, vector3f c111
 );
-
 
 octree object_density(
   array instances, int max_density, int max_depth, 
@@ -45,9 +45,11 @@ karbre object_density_rec(
 ){
   array aabb_partials = array_init(array_size(partials));
   partial mask;
+  mod_inst parent;
   int density = 0;
   for (int i = 0; i < array_size(partials); i++){
-    mask = partial_init(((partial)array_get(i, partials))->parent);
+    parent = ((partial)array_get(i, partials))->parent;
+    mask = partial_init(parent);
     
     for (int part = 0; part < array_size(mask->parent->mod->parts); part++){
       mesh me = array_get(part, mask->parent->mod->parts);
@@ -55,13 +57,17 @@ karbre object_density_rec(
 
       for (int tri = 0; tri < array_size(me->faces); tri++){
         face f = array_get(tri, me->faces);
+        vector3f p0, p1, p2;
 
-        if (triangle_AABB_overlap(
-          array_get(f->vertices[0], me->vertices),
-          array_get(f->vertices[1], me->vertices),
-          array_get(f->vertices[2], me->vertices),
-          c000, c111
-        )){
+        vec3_cpy(array_get(f->vertices[0], me->vertices), p0);
+        vec3_cpy(array_get(f->vertices[1], me->vertices), p1);
+        vec3_cpy(array_get(f->vertices[2], me->vertices), p2);
+
+        transformv3(parent->mat, p0);
+        transformv3(parent->mat, p1);
+        transformv3(parent->mat, p2);
+
+        if (triangle_AABB_overlap(p0, p1, p2, c000, c111)){
           overlap_found = 1;
           break;
         }
@@ -135,7 +141,7 @@ void octree_render(octree ot){
 void karbre_render(karbre a, vector3f c000, vector3f c111){
   if (a->k == 0){
     glColor3f(1, 0, 0);
-    draw_cube(c000, c111);
+    draw_aabb(c000, c111);
     return;
   }
 
@@ -176,15 +182,15 @@ void octree_render_frustum(octree ot, frustum f){
   if (ot == NULL || f == NULL){ return; }
 
   karbre_render_frustum(ot->tree, f, ot->c000, ot->c111);
-  glColor3f(1, 1, 1);
-  draw_cube(ot->c000, ot->c111);
+  glColor3f(1, 1, 0);
+  draw_aabb(ot->c000, ot->c111);
 }
 
 void karbre_render_frustum(karbre a, frustum f, vector3f c000, vector3f c111){
   if (frustum_AABB_intersect(f, c000, c111) == OUTSIDE){ return; }
   if (a->k == 0){
     glColor3f(1, 0, 0);
-    draw_cube(c000, c111);
+    draw_aabb(c000, c111);
     return;
   }
 
