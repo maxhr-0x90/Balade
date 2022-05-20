@@ -48,10 +48,11 @@ void init_ktrees(float side, int density, int depth){
   vector3f c111 = {side * .55f, side * .55f, side * .55f};
   density_g = object_density(get_forest_meshes(), density, depth, c000, c111);
 
-  // Quadtree
+  // Quadtrees
   vector2f c00 = {-side * .55f, -side * .55f};
   vector2f c11 = {side * .55f, side * .55f};
   ground_collision_g = collision_tree(get_forest_ground_hitboxes(), density, depth, c00, c11);
+  itp_collision_g = collision_tree(get_forst_itp_hitboxes(), density * 4, depth, c00, c11);
 }
 
 void render_world(int wired, ktree_type ktree, trans_3d proj, player p){
@@ -80,7 +81,10 @@ void render_world(int wired, ktree_type ktree, trans_3d proj, player p){
       break;
 
     case CLIMB: break;
-    case ITP: break;
+    case ITP: 
+      hitboxes = get_forst_itp_hitboxes();
+      hb_quad = itp_collision_g;
+      break;
     }
 
     if (hitboxes == NULL || hb_quad == NULL){ break; }
@@ -103,27 +107,47 @@ void render_world(int wired, ktree_type ktree, trans_3d proj, player p){
   frustum_free(frustum_g);
 }
 
-/*
-void test_collision(player p){
-  if (quadtree_check_collisions(collision_g, p)){
+hb_type update_player_position(player p){
+  quadtree hb_quad = NULL;
+
+  switch (lvl_g){
+    case GROUND:
+      hb_quad = ground_collision_g;
+      break;
+
+    case CLIMB: return TREE;
+    case ITP: 
+      hb_quad = itp_collision_g;
+      break;
+  }
+
+  hb_type type;
+  if (quadtree_check_collisions(hb_quad, p)){
     step(p);
-    return;
-  } 
+    return NO_HB;
+  } else {
+    type = quadtree_collision_type(hb_quad, p);
+  }
 
   vector2f speed;
   vec2_cpy(p->speed, speed);
   p->speed[1] = 0;
 
-  if (quadtree_check_collisions(collision_g, p)){
+  if (quadtree_check_collisions(hb_quad, p)){
     step(p);
-    return;
+    return type;
   } 
 
   vec2_cpy(speed, p->speed);
   p->speed[0] = 0;
 
-  if (quadtree_check_collisions(collision_g, p)){
+  if (quadtree_check_collisions(hb_quad, p)){
     step(p);
-    return;
   } 
-}*/
+
+  return type;
+}
+
+void set_elevation(level lvl){
+  lvl_g = lvl;
+}

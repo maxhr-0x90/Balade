@@ -3,10 +3,11 @@
 #include "../inc/collision.h"
 #include "../inc/gl_util.h"
 
-hitbox hitbox_init(box shell, check dom, float *vals){
+hitbox hitbox_init(box shell, check dom, hb_type type, float *vals){
   hitbox hb = safe_alloc(sizeof(struct hitbox_s));
   hb->shell = shell;
   hb->domain = dom;
+  hb->type = type;
 
   trans2d_id(hb->mat);
 

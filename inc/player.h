@@ -9,7 +9,7 @@ struct player_s{
   vector3f dir, up, right, pos;
   vector2f speed;
   float phi, theta;
-  float radius, act_radius;
+  float radius;
 };
 
 player player_init();

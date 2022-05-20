@@ -215,3 +215,72 @@ int karbre_check_collisions(karbre a, vector2f pos, float radius, vector2f c00, 
 
   return karbre_check_collisions(kFils(chld_num, a), pos, radius, vmin, vmax);
 }
+
+hb_type karbre_collision_type(karbre a, vector2f pos, float radius, vector2f c00, vector2f c11);
+
+hb_type quadtree_collision_type(quadtree qt, player p){
+  if (qt == NULL || p == NULL){ return 0; }
+
+  vector2f pos = {p->pos[0], p->pos[1]};
+  addv2(pos, p->speed, pos);
+
+  if (
+    pos[0] < qt->c00[0] || pos[0] > qt->c11[0] || 
+    pos[1] < qt->c00[1] || pos[1] > qt->c11[1]
+  ){
+    return NO_HB;
+  }
+
+  return karbre_collision_type(qt->tree, pos, p->radius, qt->c00, qt->c11);
+}
+
+hb_type karbre_collision_type(karbre a, vector2f pos, float radius, vector2f c00, vector2f c11){
+  if (a->k == 0){
+    array hitboxes = kRacine(a);
+
+    if (array_size(hitboxes) == 0){ return NO_HB; }
+
+    for (int i = 0; i < array_size(hitboxes); i++){
+      hitbox hb = array_get(i, hitboxes);
+      trans_2d inv;
+      inverse2d(hb->mat, inv);
+      vector2f inv_pos;
+      vec2_cpy(pos, inv_pos);
+      transformv2(inv, inv_pos);
+
+      if (hb->domain == INNER){
+        if (check_for_collision(inv_pos, radius, hb)){
+          return hb->type;
+        }
+      } 
+    }
+
+    return NO_HB;
+  }
+
+  float halfx = (c00[0] + c11[0]) / 2;
+  float halfy = (c00[1] + c11[1]) / 2;
+
+  vector2f vmin, vmax;
+
+  int chld_num = 0;
+  if (pos[0] <= halfx){
+    vmin[0] = c00[0];
+    vmax[0] = halfx;
+  } else {
+    chld_num = 1;
+    vmin[0] = halfx;
+    vmax[0] = c11[0];
+  }
+
+  if (pos[1] <= halfy){
+    chld_num ^= 3;
+    vmin[1] = c00[1];
+    vmax[1] = halfy;
+  } else {
+    vmin[1] = halfy;
+    vmax[1] = c11[1];
+  }
+
+  return karbre_collision_type(kFils(chld_num, a), pos, radius, vmin, vmax);
+}

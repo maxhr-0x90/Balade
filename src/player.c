@@ -9,8 +9,7 @@ player player_init(){
   player_set_pos(0, 0, 0, p);
   player_set_speed(0, 0, p);
   player_set_cam(0, 0, p);
-  p->radius = .5f;
-  p->act_radius = 1.0f;
+  p->radius = .3f;
 
   return p;
 }
@@ -73,6 +72,6 @@ void step(player p){
 }
 
 void setup_torch(light *torch, player p){
-  light_position(p->pos[0], p->pos[1], p->pos[2], 1, torch);
+  light_position(p->pos[0] - p->dir[0], p->pos[1] - p->dir[1], p->pos[2] - p->dir[2], 1, torch);
   light_direction(p->dir[0], p->dir[1], p->dir[2], torch);
 }

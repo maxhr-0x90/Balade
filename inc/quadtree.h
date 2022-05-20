@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "gen_array.h"
 #include "player.h"
+#include "hitbox.h"
 
 typedef struct quadtree_s *quadtree;
 struct quadtree_s {
@@ -19,5 +20,6 @@ quadtree collision_tree(
 
 int quadtree_check_collisions(quadtree qt, player p);
 void quadtree_render(quadtree qt, float zmin, float zmax);
+hb_type quadtree_collision_type(quadtree qt, player p);
 
 #endif

@@ -34,18 +34,21 @@ void check_state_changer(unsigned int buttonMask);
 void joystick_god(unsigned int buttonMask, int x, int y, int z);
 void joystick_player(unsigned int buttonMask, int x, int y, int z);
 
-int mouse_x_g, mouse_y_g;
-
-int fps_g = 0;
+int fps_g = 1;
 int wired_g = 0;
 ktree_type ktree_g = NONE;
 
 light light_g;
 player player_g;
 float radius_g, phi_g, theta_g;
+float sight_g = 40.0f;
 
 int forward_g, back_g, left_g, right_g, upward_g, downward_g;
 int shr_pressed_g, opt_pressed_g, home_pressed_g;
+int can_climb_g, climbing_g;
+
+float ground_height = 2.0f;
+float itp_height = 24.0f;
 
 int wind_width_g = LARGEUR_FEN;
 int wind_height_g = HAUTEUR_FEN;
@@ -67,7 +70,7 @@ void affichage(){
 
   trans_3d proj;
 
-  gluPerspective(fovz_g, ratio_g, 1, 50);
+  gluPerspective(fovz_g, ratio_g, .25, sight_g);
   lookat_fps();
   glGetFloatv(GL_PROJECTION_MATRIX, proj);
 
@@ -163,16 +166,41 @@ void player_update_fps(){
     player_g->speed[1] += cosf(player_g->theta);
   }
 
-  if (downward_g){
-    //player_g->pos[2] -= delta;
-  } else if (upward_g){
-    //player_g->pos[2] += delta;
+  if (can_climb_g){
+    if (downward_g){
+      if (player_g->pos[2] > ground_height){
+        player_g->pos[2] -= delta;
+        player_g->pos[2] = player_g->pos[2] < ground_height ? ground_height : player_g->pos[2];
+        setup_torch(&light_g, player_g);
+
+        set_elevation(CLIMB);
+      } else {
+        set_elevation(GROUND);
+      }
+    } else if (upward_g){
+      if (player_g->pos[2] < itp_height){
+        player_g->pos[2] += delta;
+        player_g->pos[2] = player_g->pos[2] > itp_height ? itp_height : player_g->pos[2];
+        setup_torch(&light_g, player_g);
+
+        set_elevation(CLIMB);
+      } else {
+        set_elevation(ITP);
+      }
+    }
   }
 
   if (right_g | left_g | forward_g | back_g){
     normalizev2(player_g->speed);
     multv2(player_g->speed, delta);
-    step(player_g);
+    hb_type type = update_player_position(player_g);
+
+    if(type == TREE){
+      can_climb_g = 1;
+    } else {
+      can_climb_g = 0;
+    }
+
     setup_torch(&light_g, player_g);
   }
 
@@ -328,7 +356,7 @@ void init_config(int seed){
   theta_g = 0;
 
   player_g = player_init();
-  player_set_pos(0, 0, 2, player_g);
+  player_set_pos(0, 0, ground_height, player_g);
 
   forward_g = 0;
   back_g = 0;
@@ -340,6 +368,9 @@ void init_config(int seed){
   shr_pressed_g = 0;
   opt_pressed_g = 0;
   home_pressed_g = 0;
+
+  can_climb_g = 0;
+  climbing_g = 0;
 
   light_default(&light_g);
   light_ambient(.75, .75, .75, 1, &light_g);
@@ -361,7 +392,7 @@ void launch_window(int argc, char *argv[]){
   glutInitWindowSize(LARGEUR_FEN, HAUTEUR_FEN);
   glutInitWindowPosition(50, 50);
 
-  glutCreateWindow("Fraude.");
+  glutCreateWindow("La Balade de l'Oncle Mc Krenge");
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);

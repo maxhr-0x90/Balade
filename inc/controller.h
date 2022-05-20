@@ -4,6 +4,7 @@
 #include "player.h"
 #include "transform_3d.h"
 #include "open-simplex-noise.h"
+#include "hitbox.h"
 
 typedef enum {NONE, QUADTREE, OCTREEE} ktree_type;
 typedef enum {GROUND, CLIMB, ITP} level;
@@ -15,5 +16,7 @@ void init_assets(
   int ktree_density, int ktree_depth
 );
 void render_world(int wired, ktree_type ktree, trans_3d proj, player p);
+hb_type update_player_position(player p);
+void set_elevation(level lvl);
 
 #endif
