@@ -18,6 +18,8 @@
 #include "../inc/asset_placement.h"
 #include "../inc/set.h"
 #include "../inc/transform_2d.h"
+#include "../inc/graphe.h"
+#include "../inc/map_generator.h"
 
 void test_triangle_AABB_intersection(){
   vector3f tri[3] = {{-1.0f, 5.0f, 0.0f}, {2.0f, 2.0f, -3.0f}, {5.0f, 5.0f, 0.0f}};
@@ -61,7 +63,7 @@ quadtree collision_g;
 void init_test_octree(){
   instances_g = array_init(8);
 
-  model p = ground_model(100, 100, 10, 10);
+  model p = ground_model(100, 100, 10, 10, 4, 4);
   model pine = load_model("models/pine.swag");
 
   mod_inst p2 = inst_init(pine);
@@ -107,7 +109,7 @@ void test_octree_final(trans_3d proj){
   octree_render_frustum(tree_g, frustum_g);
 
   for (int i = 0; i < array_size(rend); i++){ partial_free(array_get(i, rend)); }
-  array_free(0, rend);
+  array_free(rend);
   frustum_free(frustum_g);
 }
 
@@ -165,6 +167,13 @@ void test_collision(player p){
     step(p);
     return;
   } 
+}
+
+void render_all_instances(){
+  for (int i = 0; i < array_size(instances_g); i++){
+    glColor3f(1, 1, 1);
+    place_wire_model(array_get(i, instances_g));
+  }
 }
 
 
@@ -261,4 +270,34 @@ void test_transformation(){
   printf("===========================\n");
   aff_trans_2d(comb);
   printf("===========================\n");
+}
+
+void test_graph(){
+  array coords = array_init(10);
+
+  coord c = coord_init(357, 349);
+  array_add(c, coords);
+  c = coord_init(699, 200);
+  array_add(c, coords);
+  c = coord_init(783, 370);
+  array_add(c, coords);
+  c = coord_init(891, 685);
+  array_add(c, coords);
+  c = coord_init(1058, 217);
+  array_add(c, coords);
+  c = coord_init(1154, 667);
+  array_add(c, coords);
+
+  graph g = generate_MST(coords);
+  printf("\n");
+  print_graph(g);
+}
+
+void test_gen_pos(){
+  array pos = generate_tree_positions(100, 100, 3, 40, 40);
+
+  for (int i = 0; i < array_size(pos); i++){
+    coord c = array_get(i, pos);
+    printf("%d : %f %f\n", i, c->x, c->y);
+  }
 }

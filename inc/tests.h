@@ -15,7 +15,11 @@ void init_test_quadtree();
 void test_collision(player p);
 void test_collision_render(player p);
 
+void render_all_instances();
+
 void test_set();
 void test_transformation();
+void test_graph();
+void test_gen_pos();
 
 #endif
