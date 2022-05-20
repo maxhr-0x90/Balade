@@ -4,8 +4,6 @@
 #include "GL/gl.h"
 #include "GL/glut.h"
 
-typedef enum {CONSTANT, LINEAR, QUADRATIQUE} attenuation;
-
 typedef struct light {
   GLfloat ambient[4];
   GLfloat diffuse[4];
@@ -14,7 +12,9 @@ typedef struct light {
   GLfloat direction[3];
   GLfloat spot_cutoff;
   GLfloat spot_exponent;
-  attenuation attenuation;
+  GLfloat constant_att;
+  GLfloat linear_att;
+  GLfloat quadratic_att;
 } light;
 
 void light_default(light *l);
@@ -25,6 +25,6 @@ void light_position(GLfloat x, GLfloat y, GLfloat z, GLfloat w, light *l);
 void light_direction(GLfloat x, GLfloat y, GLfloat z, light *l);
 void light_spot_cutoff(GLfloat cutoff, light *l);
 void light_spot_exponent(GLfloat expo, light *l);
-void light_attenuation(attenuation att, light *l);
+void light_attenuation(GLfloat cnst, GLfloat line, GLfloat quad, light *l);
 
 #endif

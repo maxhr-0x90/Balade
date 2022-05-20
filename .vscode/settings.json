@@ -1,5 +1,6 @@
 {
   "files.associations": {
-    "model_loader.h": "c"
+    "model_loader.h": "c",
+    "model_generator.h": "c"
   }
 }

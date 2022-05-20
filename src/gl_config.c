@@ -1,3 +1,5 @@
+#include "../inc/gl_config.h"
+
 #include "GL/gl.h"
 #include "GL/glut.h"
 
@@ -13,7 +15,7 @@
 #include "../inc/model_generator.h"
 #include "../inc/asset_placement.h"
 #include "../inc/model_loader.h"
-#include "../inc/tests.h"
+#include "../inc/controller.h"
 
 #define LARGEUR_FEN 800
 #define HAUTEUR_FEN 800
@@ -24,15 +26,26 @@
 #define UP 8
 #define L1 16
 #define R1 32
+#define SHR 64
+#define OPT 128
+#define HOME 256
+
+void check_state_changer(unsigned int buttonMask);
+void joystick_god(unsigned int buttonMask, int x, int y, int z);
+void joystick_player(unsigned int buttonMask, int x, int y, int z);
 
 int mouse_x_g, mouse_y_g;
 
 int fps_g = 0;
+int wired_g = 0;
+ktree_type ktree_g = NONE;
 
+light light_g;
 player player_g;
 float radius_g, phi_g, theta_g;
 
 int forward_g, back_g, left_g, right_g, upward_g, downward_g;
+int shr_pressed_g, opt_pressed_g, home_pressed_g;
 
 int wind_width_g = LARGEUR_FEN;
 int wind_height_g = HAUTEUR_FEN;
@@ -60,17 +73,18 @@ void affichage(){
 
   if (!fps_g){
     glLoadIdentity();
-    gluPerspective(fovz_g, ratio_g, 0.1, 100);
+    gluPerspective(fovz_g, ratio_g, 1, 400);
     lookat_god();
   }
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  //test_triangle_AABB_intersection();
-  //test_octree_frutum(proj);
-  test_octree_final(proj);
-  //test_collision_render(player_g);
+  if (!wired_g){
+    place_light(light_g, GL_LIGHT0);
+  }
+
+  render_world(wired_g, ktree_g, proj, player_g);
 
   if (!fps_g){
     glColor3f(0, 0, 1);
@@ -150,18 +164,79 @@ void player_update_fps(){
   }
 
   if (downward_g){
-    player_g->pos[2] -= delta;
+    //player_g->pos[2] -= delta;
   } else if (upward_g){
-    player_g->pos[2] += delta;
+    //player_g->pos[2] += delta;
   }
 
   if (right_g | left_g | forward_g | back_g){
     normalizev2(player_g->speed);
     multv2(player_g->speed, delta);
-    test_collision(player_g);
+    step(player_g);
+    setup_torch(&light_g, player_g);
   }
 
   glutPostRedisplay();
+}
+
+void check_state_changer(unsigned int buttonMask){
+  if (!((SHR | OPT | HOME) & buttonMask)){ 
+    shr_pressed_g = 0;
+    opt_pressed_g = 0;
+    home_pressed_g = 0;
+    return; 
+  }
+
+  if (SHR & buttonMask){
+    if (!shr_pressed_g){
+      wired_g = !wired_g;
+
+      if (!wired_g){
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+      } else {
+        glDisable(GL_LIGHTING);
+        glDisable(GL_LIGHT0);
+      }
+
+      shr_pressed_g = 1;
+      glutPostRedisplay();
+    }
+  } else {
+    shr_pressed_g = 0;
+  }
+
+  if (OPT & buttonMask){
+    if (!opt_pressed_g){
+      switch (ktree_g){
+      case NONE: ktree_g = OCTREEE; break;
+      case OCTREEE: ktree_g = QUADTREE; break;
+      case QUADTREE: ktree_g = NONE; break;
+      }
+
+      opt_pressed_g = 1;
+      glutPostRedisplay();
+    }
+  } else {
+    opt_pressed_g = 0;
+  }
+
+  if (HOME & buttonMask){
+    if (!home_pressed_g){
+      fps_g = !fps_g;
+
+      if (fps_g){
+        glutJoystickFunc(joystick_player, 50);
+      } else {
+        glutJoystickFunc(joystick_god, 50);
+      }
+
+      home_pressed_g = 1;
+      glutPostRedisplay();
+    }
+  } else {
+    home_pressed_g = 0;
+  }
 }
 
 void joystick_player(unsigned int buttonMask, int x, int y, int z){
@@ -197,8 +272,11 @@ void joystick_player(unsigned int buttonMask, int x, int y, int z){
     float theta = ((-x * 0.18) * M_PI / 180) * angluar_speed;
     float phi = ((y * 0.18) * M_PI / 180) * angluar_speed;
     player_set_cam(player_g->phi + phi, player_g->theta + theta, player_g);
+    setup_torch(&light_g, player_g);
     glutPostRedisplay();
   }
+
+  check_state_changer(buttonMask);
 }
 
 void joystick_god(unsigned int buttonMask, int x, int y, int z){
@@ -232,27 +310,50 @@ void joystick_god(unsigned int buttonMask, int x, int y, int z){
 
     glutPostRedisplay();
   }
+
+  check_state_changer(buttonMask);
 }
 
-void keydown(unsigned char key, int x, int y){
-  switch (key){
-  case 'f':
-    fps_g = !fps_g;
-    if (fps_g){
-      glutJoystickFunc(joystick_player, 50);
-    } else {
-      glutJoystickFunc(joystick_god, 50);
-    }
-    glutPostRedisplay();
-    break;
-  
-  default:
-    break;
-  }
-  
+float side_g = 200.0f;
+int div_forest_g = 15;
+int forest_sparsity_g = 1;
+float forest_density_g = 1;
+int lod_g = 4;
+int ktree_density_g = 2;
+int ktree_depth_g = 4;
+
+void init_config(int seed){
+  radius_g = 10.0f;
+  phi_g = 0;
+  theta_g = 0;
+
+  player_g = player_init();
+  player_set_pos(0, 0, 2, player_g);
+
+  forward_g = 0;
+  back_g = 0;
+  left_g = 0;
+  right_g = 0;
+  downward_g = 0;
+  upward_g = 0;
+
+  shr_pressed_g = 0;
+  opt_pressed_g = 0;
+  home_pressed_g = 0;
+
+  light_default(&light_g);
+  light_ambient(.75, .75, .75, 1, &light_g);
+  light_specular(0.7, 0.7, 0.7, 1.0, &light_g);
+  light_spot_cutoff(90, &light_g);
+  light_spot_exponent(8, &light_g);
+  light_attenuation(1, 0, .0075, &light_g);
+
+  setup_torch(&light_g, player_g);
+
+  init_assets(seed, side_g, div_forest_g, forest_sparsity_g, forest_density_g, lod_g, ktree_density_g, ktree_depth_g);
 }
 
-void fenetre(int argc, char *argv[]){
+void launch_window(int argc, char *argv[]){
   glutInit(&argc, argv);
 
   glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE | GLUT_DEPTH);
@@ -262,6 +363,8 @@ void fenetre(int argc, char *argv[]){
 
   glutCreateWindow("Fraude.");
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
 
   glutDisplayFunc(affichage);
 
@@ -274,55 +377,7 @@ void fenetre(int argc, char *argv[]){
     glutJoystickFunc(joystick_god, 50);
   }
 
-  glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
-  glutKeyboardFunc(keydown);
-
   glutReshapeFunc(reshape);
 
   glutMainLoop();
-}
-
-void usage(char *nom_prog){
-  printf(
-    "Usage: %s [-bifmh]\n"
-    "Options:\n"
-    "\t-b : affiche une boule\n"
-    "\t-i : affiche l'intersection entre 2 boules\n"
-    "\t-f : rend l'affichage des volumes filaire (boule et intersection)\n"
-    "\t-m : affiche le modèle de la maison\n"
-    "\nNB: Le scroll permet de zoomer et dezoomer\n",
-    nom_prog
-  );
-  exit(-1);
-}
-
-int main(int argc, char *argv[]){
-  radius_g = 10.0f;
-  phi_g = 0;
-  theta_g = 0;
-
-  player_g = player_init();
-  player_set_pos(-10, 0, 2, player_g);
-
-  forward_g = 0;
-  back_g = 0;
-  left_g = 0;
-  right_g = 0;
-  downward_g = 0;
-  upward_g = 0;
-
-  init_test_octree();
-  init_test_quadtree();
-
-  int opt;
-  while((opt = getopt(argc, argv, "h")) != -1) { 
-    switch(opt) { 
-      case 'h': usage(argv[0]); break; 
-      case '?': fprintf(stderr, "Err: Option non reconnue\n"); usage(argv[0]); break; 
-    } 
-  } 
-
-  fenetre(argc, argv);
-
-  return 0;
 }

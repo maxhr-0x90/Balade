@@ -17,10 +17,26 @@ mesh mesh_init(material mat, int nb_face, int nb_vert, int nb_norm, int nb_uvc){
 void mesh_free(mesh m){
   if (m == NULL){ return; }
 
-  array_free(1, m->faces);
-  array_free(1, m->normals);
-  array_free(1, m->vertices);
-  array_free(1, m->uvcoords);
+  for (int i = 0; i < array_size(m->faces); i++){
+    safe_free(array_get(i, m->faces));
+  }
+
+  for (int i = 0; i < array_size(m->normals); i++){
+    safe_free(array_get(i, m->normals));
+  }
+
+  for (int i = 0; i < array_size(m->vertices); i++){
+    safe_free(array_get(i, m->vertices));
+  }
+
+  for (int i = 0; i < array_size(m->uvcoords); i++){
+    safe_free(array_get(i, m->uvcoords));
+  }
+
+  array_free(m->faces);
+  array_free(m->normals);
+  array_free(m->vertices);
+  array_free(m->uvcoords);
   safe_free(m);
 }
 
@@ -50,26 +66,26 @@ void mesh_add_face(face f, mesh m){
 
 vertex vertex_init(float x, float y, float z){
   vertex v = safe_alloc(sizeof(vector3f));
-  (*v)[0] = x;
-  (*v)[1] = y;
-  (*v)[2] = z;
+  v->x = x;
+  v->y = y;
+  v->z = z;
 
   return v;
 }
 
 normal normal_init(float x, float y, float z){
   normal n = safe_alloc(sizeof(vector3f));
-  (*n)[0] = x;
-  (*n)[1] = y;
-  (*n)[2] = z;
+  n->x = x;
+  n->y = y;
+  n->z = z;
 
   return n;
 }
 
 uvcoord uvcoord_init(float x, float y){
   uvcoord u = safe_alloc(sizeof(vector2f));
-  (*u)[0] = x;
-  (*u)[1] = y;
+  u->x = x;
+  u->y = y;
 
   return u;
 }

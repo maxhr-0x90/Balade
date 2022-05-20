@@ -101,17 +101,8 @@ void place_light(light l, GLenum num){
   glLightf(num, GL_CONSTANT_ATTENUATION, 0);
   glLightf(num, GL_LINEAR_ATTENUATION, 0);
   glLightf(num, GL_QUADRATIC_ATTENUATION, 0);
-  switch (l.attenuation){
-  case CONSTANT:
-    glLightf(num, GL_CONSTANT_ATTENUATION, 1);
-    break;
 
-  case LINEAR:
-    glLightf(num, GL_LINEAR_ATTENUATION, 1);
-    break;
-
-  case QUADRATIQUE:
-    glLightf(num, GL_QUADRATIC_ATTENUATION, 1);
-    break;
-  }
+  glLightf(num, GL_CONSTANT_ATTENUATION, l.constant_att);
+  glLightf(num, GL_LINEAR_ATTENUATION, l.linear_att);
+  glLightf(num, GL_QUADRATIC_ATTENUATION, l.quadratic_att);
 }

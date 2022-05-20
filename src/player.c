@@ -10,6 +10,7 @@ player player_init(){
   player_set_speed(0, 0, p);
   player_set_cam(0, 0, p);
   p->radius = .5f;
+  p->act_radius = 1.0f;
 
   return p;
 }

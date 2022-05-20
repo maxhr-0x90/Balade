@@ -28,7 +28,7 @@ quadtree collision_tree(
   vec2_cpy(c11, qt->c11);
   qt->tree = collision_tree_rec(hbs, max_density, 0, max_depth, c00, c11);
 
-  array_free(0, hbs);
+  array_free(hbs);
 
   return qt;
 }
@@ -102,7 +102,7 @@ karbre collision_tree_rec(
     collision_tree_rec(aabb_hitboxes, max_density, depth + 1, max_depth, c00, c22)
   );
 
-  array_free(0, aabb_hitboxes);
+  array_free(aabb_hitboxes);
   
   return fils;
 }

@@ -221,7 +221,7 @@ int inverse(trans_3d src, trans_3d dest){
   return 1;
 }
 
-void aff_trans_3d(trans_3d tr){
+void print_trans_3d(trans_3d tr){
   for (int i = 0; i < 4; i++){
     for (int j = 0; j < 4; j++){
       printf("%f\t", tr[j * 4 + i]);

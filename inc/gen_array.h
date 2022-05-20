@@ -14,8 +14,8 @@ struct array_s{
 // initialise le tableau
 array array_init(int capacity);
 
-// libère l'espace occupé par le tableau
-void array_free(int free_content, array arr);
+// libère l'espace occupé par le tableau seulement
+void array_free(array arr);
 
 // ajoute un element au tableau
 void array_add(elem e, array arr);

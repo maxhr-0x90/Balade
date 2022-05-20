@@ -15,7 +15,11 @@ model model_init(int parts){
 void model_free(model m){
   if (m == NULL){ return; }
 
-  array_free(1, m->parts);
+  for (int i = 0; i < array_size(m->parts); i++){
+    mesh_free(array_get(i, m->parts));
+  }
+  
+  array_free(m->parts);
   safe_free(m);
 }
 

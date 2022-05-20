@@ -5,9 +5,17 @@
 #include "material.h"
 #include "gen_array.h"
 
-typedef vector3f *vertex;
-typedef vector3f *normal;
-typedef vector2f *uvcoord;
+struct coord3d_s {
+  float x, y, z;
+};
+
+struct coord2d_s {
+  float x, y;
+};
+
+typedef struct coord3d_s *vertex;
+typedef struct coord3d_s *normal;
+typedef struct coord2d_s *uvcoord;
 
 typedef struct face_s *face;
 struct face_s {

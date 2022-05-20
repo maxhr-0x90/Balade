@@ -34,7 +34,7 @@ octree object_density(
     partial_free(array_get(i, partials));
   }
   
-  array_free(0, partials);
+  array_free(partials);
 
   return ot;
 }
@@ -124,7 +124,7 @@ karbre object_density_rec(
     partial_free(array_get(i, aabb_partials));
   }
   
-  array_free(0, aabb_partials);
+  array_free(aabb_partials);
   
   return fils;
 }
@@ -297,7 +297,7 @@ void fuse_child(array child, array dest){
 
   fuse_partials(child, dest);
   for (int i = 0; i < array_size(child); i++){ partial_free(array_get(i, child)); }
-  array_free(0, child);
+  array_free(child);
 }
 
 void fuse_partials(array add, array dest){

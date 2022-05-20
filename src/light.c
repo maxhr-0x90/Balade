@@ -8,7 +8,7 @@ void light_default(light *l){
   light_direction(0, 0, -1, l);
   light_spot_cutoff(180, l);
   light_spot_exponent(0, l);
-  light_attenuation(CONSTANT, l);
+  light_attenuation(1, 0, 0, l);
 }
 
 void light_ambient(GLfloat r, GLfloat g, GLfloat b, GLfloat a, light *l){
@@ -53,6 +53,8 @@ void light_spot_exponent(GLfloat expo, light *l){
   l->spot_exponent = expo;
 }
 
-void light_attenuation(attenuation att, light *l){
-  l->attenuation = att;
+void light_attenuation(GLfloat cnst, GLfloat line, GLfloat quad, light *l){
+  l->constant_att = cnst;
+  l->linear_att = line;
+  l->quadratic_att = quad;
 }

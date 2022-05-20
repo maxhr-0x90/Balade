@@ -15,14 +15,8 @@ array array_init(int capacity){
 }
 
 // Libère l'espace occupé par le tableau
-void array_free(int free_content, array arr){
+void array_free(array arr){
   if (arr == NULL){ return; }
-
-  if (free_content){ 
-    for (int i = 0; i < arr->size; i++){
-      safe_free(arr->arr[i]);
-    }
-  }
   
   safe_free(arr->arr);
   safe_free(arr);

@@ -16,5 +16,6 @@ void trans_rotate(GLfloat angle, GLfloat x, GLfloat y, GLfloat z, trans_3d mat);
 void trans_scale(GLfloat x, GLfloat y, GLfloat z, trans_3d mat);
 int inverse(trans_3d src, trans_3d dest);
 void transformv3(trans_3d tr, vector3f v);
+void print_trans_3d(trans_3d tr);
 
 #endif
