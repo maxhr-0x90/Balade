@@ -160,7 +160,7 @@ void generate_forest_hitbox(float side){
   hitbox hb_bridge;
   hb_aabb_vals[0] = 0;
   hb_aabb_vals[1] = 0;
-  hb_aabb_vals[2] = 1;
+  hb_aabb_vals[3] = 1;
   for (int i = 0; i < tree_linkage_g->nb_edges; i++){
     edge e = array_get(i, tree_linkage_g->edges);
     coord a = array_get(e->ext_a, tree_linkage_g->coords);
@@ -168,9 +168,9 @@ void generate_forest_hitbox(float side){
 
     float posx = (a->x + b->x) / 2;
     float posy = (a->y + b->y) / 2;
-    float angle = M_PI_2 - atan2f(a->y - posy, a->x - posx);
+    float angle = -atan2f(a->y - posy, a->x - posx);
 
-    hb_aabb_vals[3] = ( e->weight - 1 ) / 2;
+    hb_aabb_vals[2] = ( e->weight - 1 ) / 2;
     hb_bridge = hitbox_init(AABB, OUTER, BORDER, hb_aabb_vals);
     trans2d_translate(posx, posy, hb_bridge->mat);
     trans2d_rotate(angle, hb_bridge->mat);

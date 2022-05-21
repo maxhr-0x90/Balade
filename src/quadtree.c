@@ -64,12 +64,14 @@ karbre collision_tree_rec(
       transformv2(hb->mat, hb_center);
       transformv2(hb->mat, hb_halfx);
       transformv2(hb->mat, hb_halfy);
+      subv2(hb_halfx, hb_center, hb_halfx);
+      subv2(hb_halfy, hb_center, hb_halfy);
       overlap = obb_aabb_overlap(hb_center, hb_halfx, hb_halfy, aabb_center, aabb_half);
       break;
     }
     }
 
-    if (overlap){
+    if (overlap){ 
       array_add(hb, aabb_hitboxes);
       if (!found_outer && hb->domain == OUTER){ 
         found_outer = 1; 

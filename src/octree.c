@@ -296,7 +296,9 @@ void fuse_child(array child, array dest){
   if (child == NULL){ return; }
 
   fuse_partials(child, dest);
-  for (int i = 0; i < array_size(child); i++){ partial_free(array_get(i, child)); }
+  for (int i = 0; i < array_size(child); i++){ 
+    partial_free(array_get(i, child)); 
+  }
   array_free(child);
 }
 
@@ -307,6 +309,7 @@ void fuse_partials(array add, array dest){
       if (((partial)array_get(j, dest))->parent == ((partial)array_get(i, add))->parent){
         already_in = 1;
         partial_fuse(array_get(i, add), array_get(j, dest));
+        break;
       }
     }
 

@@ -244,10 +244,14 @@ int obb_aabb_overlap(
   normalizev2(nx);
   normalizev2(ny);
 
-  if (fabsf(t[0]) > h[0] + hx[0] + hy[0]){ return 0; }
-  if (fabsf(t[1]) > h[1] + hx[1] + hy[1]){ return 0; }
-  if (fabsf(dotv2(t, nx)) > fabsf(h[0] * nx[0]) + fabsf(h[1] * nx[1]) + normv2(hx)){ return 0; }
-  if (fabsf(dotv2(t, ny)) > fabsf(h[0] * ny[0]) + fabsf(h[1] * ny[1]) + normv2(hy)){ return 0; }
+  if (fabsf(t[0]) > h[0] + fabsf(hx[0]) + fabsf(hy[0])){ return 0; }
+  if (fabsf(t[1]) > h[1] + fabsf(hx[1]) + fabsf(hy[1])){ return 0; }
+  if (
+    fabsf(dotv2(t, nx)) > fabsf(h[0] * nx[0]) + fabsf(h[1] * nx[1]) + normv2(hx)
+  ){ return 0; }
+  if (
+    fabsf(dotv2(t, ny)) > fabsf(h[0] * ny[0]) + fabsf(h[1] * ny[1]) + normv2(hy)
+  ){ return 0; }
 
   return 1;
 }

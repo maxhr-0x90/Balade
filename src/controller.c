@@ -44,15 +44,17 @@ struct osn_context *get_noise_context(){
 
 void init_ktrees(float side, int density, int depth){
   // Octree
-  vector3f c000 = {side * -.55f, side * -.55f, side * -.55f};
-  vector3f c111 = {side * .55f, side * .55f, side * .55f};
+  vector3f c000 = {side * -.55f, side * -.55f, -10};
+  vector3f c111 = {side * .55f, side * .55f, 30};
   density_g = object_density(get_forest_meshes(), density, depth, c000, c111);
 
   // Quadtrees
   vector2f c00 = {-side * .55f, -side * .55f};
   vector2f c11 = {side * .55f, side * .55f};
   ground_collision_g = collision_tree(get_forest_ground_hitboxes(), density, depth, c00, c11);
-  itp_collision_g = collision_tree(get_forst_itp_hitboxes(), density * 4, depth, c00, c11);
+  itp_collision_g = collision_tree(
+    get_forst_itp_hitboxes(), density * 4, depth * 2, c00, c11
+  );
 }
 
 void render_world(int wired, ktree_type ktree, trans_3d proj, player p){
@@ -103,6 +105,9 @@ void render_world(int wired, ktree_type ktree, trans_3d proj, player p){
   case NONE: break;
   }
 
+  for (int i = 0; i < array_size(rends); i++){ 
+    partial_free(array_get(i, rends)); 
+  }
   array_free(rends);
   frustum_free(frustum_g);
 }
