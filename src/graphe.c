@@ -94,6 +94,8 @@ graph generate_MST(array coords) {
   graph mst = graph_init(coords);
   edge e;
 
+  // Algorithme de Kruskal
+
   generate_edges(g);
   int *partition = init_partition(g->nb_edges);
   

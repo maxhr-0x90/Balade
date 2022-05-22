@@ -1,8 +1,12 @@
+/* Module de gestion de tableau dynamique */
+
 #ifndef GEN_ARRAY_H_
 #define GEN_ARRAY_H_
 
+/* Élément du tableau */
 typedef void *elem;
 
+/* Structure d'un tableau dynamique */
 typedef struct array_s *array;
 struct array_s{
   elem *arr;
@@ -11,19 +15,20 @@ struct array_s{
 };
 
 
-// initialise le tableau
+// Initialise le tableau
 array array_init(int capacity);
 
-// libère l'espace occupé par le tableau seulement
+// Libère l'espace occupé par le tableau seulement
 void array_free(array arr);
 
-// ajoute un element au tableau
+// Ajoute un element au tableau
 void array_add(elem e, array arr);
 
+// Rempli le tableau
 void array_fill(int fill, array arr);
 
-// renvoie un element du tableau
-void *array_get(int i, array arr);
+// Renvoie un element du tableau
+elem array_get(int i, array arr);
 
 void array_set(int i, elem e, array arr);
 

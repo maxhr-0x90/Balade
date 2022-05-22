@@ -1,3 +1,5 @@
+/* Module gérant les plans */
+
 #ifndef PLANE_H_
 #define PLANE_H_
 
@@ -10,7 +12,10 @@ struct plane_s{
   float d;
 };
 
+// Initialise un plan
 plane plane_init(vector3f norm, float d);
+
+// Libère l'espace occupé par un plan
 void plane_free(plane p);
 
 #endif

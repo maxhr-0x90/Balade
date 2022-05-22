@@ -4,7 +4,7 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
-MAIN := $(BIN_DIR)/fraude
+MAIN := $(BIN_DIR)/balade
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 

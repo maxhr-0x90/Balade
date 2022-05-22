@@ -62,7 +62,7 @@ void array_fill(int fill, array arr){
 }
 
 // Renvoie un element du tableau
-void *array_get(int i, array arr){
+elem array_get(int i, array arr){
   if (arr == NULL || i < 0 || i >= arr->size) { return NULL; }
 
   return arr->arr[i];

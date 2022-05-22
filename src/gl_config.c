@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "../inc/voxel.h"
 #include "../inc/model.h"
 #include "../inc/player.h"
 #include "../inc/light.h"
